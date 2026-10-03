@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -280,7 +280,7 @@
 
   // === НАСТРОЙКИ ===
   var WA_PHONE = '79281213774';       // WhatsApp
-  var MAX_LINK = 'https://max.ru';    // Ссылка на Max
+  var MAX_LINK = 'https://max.ru/u/f9LHodD0cOJrQrdAIiDym1Sm_Cbw0Z21-F2bMqxg7I4I8KyZ8WXQFthwzjE';
   // ==================
 
   var CATALOG = [
@@ -599,7 +599,7 @@
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function() {
-        showToast('✅ Текст заказа скопирован! Открываю Max', 4000);
+        showToast('✅ Заказ скопирован! В чате Max вставьте его в поле ввода и отправьте', 5000);
       }).catch(function() {
         fallbackCopy(text);
       });
