@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiraMix — Прайс</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #081a33;
+    color: #e8edf5;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 12px;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    background: #14294d;
+    border-radius: 18px;
+    padding: 16px;
+    padding-bottom: 110px;
+  }
+  h1 {
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .tag {
+    font-size: 10px;
+    color: #f26b1d;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    background: rgba(8,26,51,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #fff;
+    margin-bottom: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  input[type="text"]:focus { border-color: #f26b1d; }
+  .cat {
+    font-size: 12px;
+    color: #f26b1d;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 14px 0 8px;
+    padding-left: 6px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #1a3462;
+    border-radius: 9px;
+    margin-bottom: 5px;
+  }
+  .row.in-cart {
+    background: linear-gradient(90deg, #1a3462, rgba(242,107,29,0.2));
+    box-shadow: inset 0 0 0 1px rgba(242,107,29,0.4);
+  }
+  .row-info { flex: 1; min-width: 0; }
+  .row-name {
+    font-size: 13px;
+    color: #fff;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .row-name .art {
+    color: #f5c518;
+    font-weight: 800;
+    margin-right: 6px;
+  }
+  .row-name .unit {
+    color: #8ba0c0;
+    font-weight: 500;
+    font-size: 12px;
+    margin-left: 4px;
+  }
+  .counter { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .counter button {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .counter button:active { background: #f26b1d; }
+  .counter button:disabled { opacity: 0.3; }
+  .counter .count {
+    min-width: 26px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #8ba0c0;
+  }
+  .counter .count.active { color: #f26b1d; }
+  .cart {
+    background: rgba(242,107,29,0.12);
+    border: 1px solid rgba(242,107,29,0.3);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 14px;
+    display: none;
+  }
+  .cart.show { display: block; }
+  .cart h3 {
+    font-size: 12px;
+    color: #f26b1d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+  }
+  .cart-item .q { color: #f26b1d; font-weight: 700; }
+  .field { margin-top: 12px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: #8ba0c0;
+    margin-bottom: 4px;
+  }
+  .field textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    background: rgba(8,26,51,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    color: #fff;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+  }
+  .field textarea:focus { border-color: #f26b1d; }
+
+  /* === Кнопки внизу === */
+  .actions {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px;
+    background: linear-gradient(0deg, #081a33 65%, transparent);
+    display: flex;
+    justify-content: center;
+  }
+  .actions-inner {
+    max-width: 560px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 52px 1fr 1fr;
+    gap: 6px;
+  }
+  .btn {
+    padding: 13px 10px;
+    border: none;
+    border-radius: 11px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-call {
+    background: rgba(255,255,255,0.1);
+    font-size: 20px;
+    padding: 13px 0;
+  }
+  .btn-wa {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    box-shadow: 0 6px 16px rgba(37,211,102,0.35);
+  }
+  .btn-max {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    box-shadow: 0 6px 16px rgba(124,58,237,0.35);
+  }
+
+  /* Тост-уведомление */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: #14294d;
+    border: 1px solid #f26b1d;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    z-index: 100;
+    transition: transform 0.3s;
+    max-width: 90%;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 400px) {
+    .btn { font-size: 12px; padding: 12px 6px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>MiraMix</h1>
+    <div class="tag">car paint system · прайс</div>
+
+    <input type="text" id="search" placeholder="🔍 Поиск по артикулу или названию...">
+
+    <div id="catalog"></div>
+
+    <div class="cart" id="cart">
+      <h3>🛒 Ваш заказ</h3>
+      <div id="cartList"></div>
+    </div>
+
+    <div class="field">
+      <label>Комментарий</label>
+      <textarea id="fComment" rows="2" placeholder="Пожелания к заказу..."></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <div class="actions-inner">
+      <a href="tel:+79281213774" class="btn btn-call" title="Позвонить">📞</a>
+      <button class="btn btn-wa" id="waBtn" disabled type="button">💬 WhatsApp</button>
+      <button class="btn btn-max" id="maxBtn" disabled type="button">📋 Max</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  // === НАСТРОЙКИ ===
+  var WA_PHONE = '79281213774';       // WhatsApp
+  var MAX_LINK = 'https://max.ru';    // Ссылка на Max (замени на свою, если есть)
+  // ==================
+
+  var CATALOG = [
+    { category: 'Гладкие цвета', items: [
+      { id: 'B010', name: 'Extra White', unit: '1 L' },
+      { id: 'B010-3.75', name: 'Extra White', unit: '3,75 L' },
+      { id: 'B011', name: 'Transparent White', unit: '1 L' },
+      { id: 'B022', name: 'Black Toner', unit: '1 L' },
+      { id: 'B022-3.75', name: 'Black Toner', unit: '3,75 L' },
+      { id: 'B023', name: 'Blue Black', unit: '1 L' },
+      { id: 'B023-3.75', name: 'Blue Black', unit: '3,75 L' },
+      { id: 'B024', name: 'Deep Blue Black', unit: '1 L' },
+      { id: 'B026', name: 'Extra Black', unit: '1 L' },
+      { id: 'B026-3.75', name: 'Extra Black', unit: '3,75 L' },
+      { id: 'B027', name: 'Extreme Black', unit: '1 L' },
+      { id: 'B027-3.75', name: 'Extreme Black', unit: '3,75 L' },
+      { id: 'B030', name: 'Violet Blue', unit: '1 L' },
+      { id: 'B031', name: 'Blue', unit: '1 L' },
+      { id: 'B031-deep', name: 'Deep Blue', unit: '1 L' },
+      { id: 'B032', name: 'Transparent Blue', unit: '1 L' },
+      { id: 'B034', name: 'Green Blue', unit: '1 L' },
+      { id: 'B035', name: 'Crystal Blue', unit: '1 L' },
+      { id: 'B036', name: 'Dark Blue', unit: '1 L' },
+      { id: 'B040', name: 'Blue Green', unit: '1 L' },
+      { id: 'B041', name: 'Yellow Green', unit: '1 L' },
+      { id: 'B042', name: 'Golden Green', unit: '1 L' },
+      { id: 'B050', name: 'Burgundy Red', unit: '1 L' },
+      { id: 'B051', name: 'Transoxide Red', unit: '1 L' },
+      { id: 'B052', name: 'Brick Red', unit: '1 L' },
+      { id: 'B053', name: 'Bright Red', unit: '1 L' },
+      { id: 'B054', name: 'Orange Red', unit: '1 L' },
+      { id: 'B055', name: 'Violet Red', unit: '1 L' },
+      { id: 'B056', name: 'Rose Red', unit: '1 L' },
+      { id: 'B057', name: 'Brilliant Red', unit: '1 L' },
+      { id: 'B058', name: 'Maroon Red', unit: '1 L' },
+      { id: 'B059', name: 'Transparent Red', unit: '1 L' },
+      { id: 'B060', name: 'Mud Yellow', unit: '1 L' },
+      { id: 'B061', name: 'Transoxide Yellow', unit: '1 L' },
+      { id: 'B062', name: 'Leadfree Lemon Yellow', unit: '1 L' },
+      { id: 'B063', name: 'Transparent Yellow', unit: '1 L' },
+      { id: 'B064', name: 'Bright Yellow', unit: '1 L' },
+      { id: 'B065', name: 'Lemon Yellow', unit: '1 L' },
+      { id: 'B066', name: 'Transparent Brown', unit: '1 L' },
+      { id: 'B070', name: 'Violet', unit: '1 L' }
+    ]},
+    { category: 'Серебристые и цветные зёрна', items: [
+      { id: 'S010', name: 'Extra Fine Silver', unit: '1 L' },
+      { id: 'S010-3.75', name: 'Extra Fine Silver', unit: '3,75 L' },
+      { id: 'S011', name: 'Fine White Silver', unit: '1 L' },
+      { id: 'S011-3.75', name: 'Fine White Silver', unit: '3,75 L' },
+      { id: 'S012', name: 'Medium Fine White Silver', unit: '1 L' },
+      { id: 'S012-3.75', name: 'Medium Fine White Silver', unit: '3,75 L' },
+      { id: 'S014', name: 'Super White Fine Silver', unit: '1 L' },
+      { id: 'S020', name: 'Medium Silver', unit: '1 L' },
+      { id: 'S020-3.75', name: 'Medium Silver', unit: '3,75 L' },
+      { id: 'S021', name: 'Medium White Silver', unit: '1 L' },
+      { id: 'S022', name: 'Extra Medium White Silver', unit: '1 L' },
+      { id: 'S030', name: 'Coarse Silver', unit: '1 L' },
+      { id: 'S030-3.75', name: 'Coarse Silver', unit: '3,75 L' },
+      { id: 'S031', name: 'Extra Coarse Silver', unit: '1 L' },
+      { id: 'S031-3.75', name: 'Extra Coarse Silver', unit: '3,75 L' },
+      { id: 'S040', name: 'Extra Fine Sparkle Silver', unit: '1 L' },
+      { id: 'S040-3.75', name: 'Extra Fine Sparkle Silver', unit: '3,75 L' },
+      { id: 'S041', name: 'Fine Sparkle Silver', unit: '1 L' },
+      { id: 'S041-3.75', name: 'Fine Sparkle Silver', unit: '3,75 L' },
+      { id: 'S042', name: 'Medium Sparkle Silver', unit: '1 L' },
+      { id: 'S042-3.75', name: 'Medium Sparkle Silver', unit: '3,75 L' },
+      { id: 'S044', name: 'Fine Bright Silver', unit: '1 L' },
+      { id: 'S044-3.75', name: 'Fine Bright Silver', unit: '3,75 L' },
+      { id: 'S046', name: 'Coarse Sparkle Silver', unit: '1 L' },
+      { id: 'S046-3.75', name: 'Coarse Sparkle Silver', unit: '3,75 L' },
+      { id: 'S050', name: 'Medium Gold Silver', unit: '1 L' },
+      { id: 'S050-0.2', name: 'Medium Gold Silver', unit: '0,2 L' },
+      { id: 'S055', name: 'Medium Orange Silver', unit: '1 L' },
+      { id: 'S055-0.2', name: 'Medium Orange Silver', unit: '0,2 L' },
+      { id: 'S057', name: 'Red Silver', unit: '1 L' },
+      { id: 'S057-0.2', name: 'Red Silver', unit: '0,2 L' },
+      { id: 'S058', name: 'Blue Silver', unit: '1 L' },
+      { id: 'S058-0.2', name: 'Blue Silver', unit: '0,2 L' },
+      { id: 'S059', name: 'Green Silver', unit: '1 L' },
+      { id: 'S059-0.2', name: 'Green Silver', unit: '0,2 L' }
+    ]},
+    { category: 'Перламутры', items: [
+      { id: 'P010', name: 'White Pearl', unit: '1 L' },
+      { id: 'P011', name: 'Fine White Pearl', unit: '1 L' },
+      { id: 'P012', name: 'Extra White Pearl', unit: '1 L' },
+      { id: 'P013', name: 'Coarse White Pearl', unit: '1 L' },
+      { id: 'P030', name: 'Blue Pearl', unit: '1 L' },
+      { id: 'P031', name: 'Fine Blue Pearl', unit: '1 L' },
+      { id: 'P033', name: 'Bright Blue Pearl', unit: '1 L' },
+      { id: 'P033-0.2', name: 'Bright Blue Pearl', unit: '0,2 L' },
+      { id: 'P040', name: 'Green Pearl', unit: '1 L' },
+      { id: 'P041', name: 'Fine Green Pearl', unit: '1 L' },
+      { id: 'P042', name: 'Bright Green Pearl', unit: '1 L' },
+      { id: 'P042-0.2', name: 'Bright Green Pearl', unit: '0,2 L' },
+      { id: 'P045', name: 'Skarabey Pearl', unit: '0,2 L' },
+      { id: 'P050', name: 'Red Pearl', unit: '1 L' },
+      { id: 'P051', name: 'Fine Red Pearl', unit: '1 L' },
+      { id: 'P060', name: 'Yellow Pearl', unit: '1 L' },
+      { id: 'P061', name: 'Golden Pearl', unit: '1 L' },
+      { id: 'P063', name: 'Golden Yellow Pearl', unit: '1 L' },
+      { id: 'P064', name: 'Orange Pearl', unit: '1 L' },
+      { id: 'P065', name: 'Copper Pearl', unit: '1 L' },
+      { id: 'P070', name: 'Violet Pearl', unit: '1 L' },
+      { id: 'P071', name: 'Violet Red Pearl', unit: '1 L' },
+      { id: 'P080', name: 'Colorful Pearl', unit: '1 L' }
+    ]},
+    { category: 'Спец пигменты', items: [
+      { id: 'PS01', name: 'Flame Red Pearl', unit: '1 L' },
+      { id: 'PS01-0.2', name: 'Flame Red Pearl', unit: '0,2 L' },
+      { id: 'PS02', name: 'Colorful Pearl', unit: '1 L' },
+      { id: 'PS02-0.2', name: 'Colorful Pearl', unit: '0,2 L' },
+      { id: 'PS03', name: 'Interstellar Green Pearl', unit: '1 L' },
+      { id: 'PS03-0.2', name: 'Interstellar Green Pearl', unit: '0,2 L' },
+      { id: 'PS04', name: 'Bright White Pearl', unit: '1 L' },
+      { id: 'PS04-0.2', name: 'Bright White Pearl', unit: '0,2 L' },
+      { id: 'PS05', name: 'Bright Blue Pearl', unit: '1 L' },
+      { id: 'PS05-0.2', name: 'Bright Blue Pearl', unit: '0,2 L' }
+    ]},
+    { category: 'Ксиралики', items: [
+      { id: 'PX01', name: 'Crystal White Pearl', unit: '1 L' },
+      { id: 'PX03', name: 'Crystal Blue Pearl', unit: '1 L' },
+      { id: 'PX04', name: 'Crystal Green Pearl', unit: '1 L' },
+      { id: 'PX05', name: 'Crystal Red Pearl', unit: '1 L' },
+      { id: 'PX06', name: 'Crystal Golden Pearl', unit: '1 L' },
+      { id: 'PX07', name: 'Crystal Copper Pearl', unit: '1 L' }
+    ]},
+    { category: 'Добавки', items: [
+      { id: 'W-5520-3.75', name: '1K Binder', unit: '3,75 L' },
+      { id: 'W-60', name: '1K Flip Controller', unit: '1 L' },
+      { id: 'W-940', name: 'Matting Agent', unit: '1 L' }
+    ]}
+  ];
+
+  var cart = {};
+
+  try {
+    var saved = localStorage.getItem('miramix_price_cart');
+    if (saved) cart = JSON.parse(saved) || {};
+  } catch (e) { cart = {}; }
+
+  function saveCart() {
+    try { localStorage.setItem('miramix_price_cart', JSON.stringify(cart)); } catch (e) {}
+  }
+
+  function findItem(id) {
+    for (var i = 0; i < CATALOG.length; i++) {
+      for (var j = 0; j < CATALOG[i].items.length; j++) {
+        if (CATALOG[i].items[j].id === id) return CATALOG[i].items[j];
+      }
+    }
+    return null;
+  }
+
+  var catalogEl = document.getElementById('catalog');
+  var searchEl = document.getElementById('search');
+
+  function renderCatalog(filter) {
+    var q = (filter || '').trim().toLowerCase();
+    var html = '';
+
+    CATALOG.forEach(function(cat) {
+      var items = cat.items.filter(function(it) {
+        if (!q) return true;
+        return it.name.toLowerCase().indexOf(q) !== -1 ||
+               it.id.toLowerCase().indexOf(q) !== -1;
+      });
+
+      if (!items.length) return;
+
+      html += '<div class="cat">' + cat.category + '</div>';
+
+      items.forEach(function(it) {
+        var qty = cart[it.id] || 0;
+        var inCart = qty > 0 ? ' in-cart' : '';
+        html += '<div class="row' + inCart + '">';
+        html += '<div class="row-info">';
+        html += '<div class="row-name"><span class="art">' + it.id + '</span>' + it.name + ' <span class="unit">' + it.unit + '</span></div>';
+        html += '</div>';
+        html += '<div class="counter">';
+        html += '<button type="button" data-act="dec" data-id="' + it.id + '"' + (qty <= 0 ? ' disabled' : '') + '>−</button>';
+        html += '<span class="count' + (qty > 0 ? ' active' : '') + '">' + qty + '</span>';
+        html += '<button type="button" data-act="inc" data-id="' + it.id + '">+</button>';
+        html += '</div>';
+        html += '</div>';
+      });
+    });
+
+    catalogEl.innerHTML = html || '<div style="padding:20px;text-align:center;color:#8ba0c0;">Ничего не найдено</div>';
+  }
+
+  var cartEl = document.getElementById('cart');
+  var cartListEl = document.getElementById('cartList');
+  var waBtn = document.getElementById('waBtn');
+  var maxBtn = document.getElementById('maxBtn');
+  var toastEl = document.getElementById('toast');
+
+  function showToast(text, ms) {
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    clearTimeout(toastEl._timer);
+    toastEl._timer = setTimeout(function() {
+      toastEl.classList.remove('show');
+    }, ms || 3000);
+  }
+
+  function renderCart() {
+    var ids = Object.keys(cart).filter(function(id){ return cart[id] > 0; });
+
+    if (!ids.length) {
+      cartEl.classList.remove('show');
+      waBtn.disabled = true;
+      maxBtn.disabled = true;
+      return;
+    }
+
+    cartEl.classList.add('show');
+    waBtn.disabled = false;
+    maxBtn.disabled = false;
+
+    var html = '';
+    var totalQty = 0;
+    ids.forEach(function(id) {
+      var it = findItem(id);
+      if (!it) return;
+      var q = cart[id];
+      totalQty += q;
+      html += '<div class="cart-item">';
+      html += '<span><b style="color:#f5c518;">' + it.id + '</b> ' + it.name + ' <span style="color:#8ba0c0;">(' + it.unit + ')</span></span>';
+      html += '<span class="q">× ' + q + '</span>';
+      html += '</div>';
+    });
+
+    cartListEl.innerHTML = html;
+    waBtn.textContent = '💬 WhatsApp';
+    maxBtn.textContent = '📋 Max';
+  }
+
+  catalogEl.addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    var act = btn.getAttribute('data-act');
+    var current = cart[id] || 0;
+    var next = act === 'inc' ? current + 1 : Math.max(0, current - 1);
+    if (next === 0) delete cart[id];
+    else cart[id] = next;
+    saveCart();
+    renderCatalog(searchEl.value);
+    renderCart();
+  });
+
+  searchEl.addEventListener('input', function() {
+    renderCatalog(searchEl.value);
+  });
+
+  // === Формирование текста заказа ===
+  function buildOrderText() {
+    var ids = Object.keys(cart).filter(function(id){ return cart[id] > 0; });
+    if (!ids.length) return '';
+
+    var comment = (document.getElementById('fComment').value || '').trim();
+
+    var lines = [];
+    lines.push('Здравствуйте! Хочу заказать у MiraMix:');
+    lines.push('');
+    lines.push('📦 Состав заказа:');
+
+    var totalQty = 0;
+    ids.forEach(function(id, i) {
+      var it = findItem(id);
+      if (!it) return;
+      var q = cart[id];
+      totalQty += q;
+      lines.push((i+1) + '. ' + it.id + ' ' + it.name + ' ' + it.unit + ' × ' + q + ' шт');
+    });
+
+    lines.push('');
+    lines.push('📊 Всего позиций: ' + ids.length + ' / ' + totalQty + ' шт');
+    if (comment) {
+      lines.push('');
+      lines.push('💬 Комментарий: ' + comment);
+    }
+    lines.push('');
+    lines.push('— Отправлено с прайса MiraMix');
+
+    return lines.join('\n');
+  }
+
+  // === WhatsApp ===
+  waBtn.addEventListener('click', function() {
+    var text = buildOrderText();
+    if (!text) return;
+    var url = 'https://wa.me/' + WA_PHONE + '?text=' + encodeURIComponent(text);
+    window.open(url, '_blank');
+  });
+
+  // === Max ===
+  maxBtn.addEventListener('click', function() {
+    var text = buildOrderText();
+    if (!text) return;
+
+    // Копируем текст в буфер обмена
+    var copied = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        showToast('✅ Текст заказа скопирован! Открываю Max — вставьте в чат', 4000);
+      }).catch(function() {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+
+    function fallbackCopy(txt) {
+      var ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      showToast('✅ Текст заказа скопирован! Открываю Max — вставьте в чат', 4000);
+    }
+
+    // Открываем Max (если есть ссылка на чат — с ней)
+    setTimeout(function() {
+      window.open(MAX_LINK, '_blank');
+    }, 500);
+  });
+
+  renderCatalog('');
+  renderCart();
+})();
+</script>
+</body>
+</html>
